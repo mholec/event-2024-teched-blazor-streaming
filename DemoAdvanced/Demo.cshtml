@@ -1,0 +1,73 @@
+@page "demo"
+@model Streaming.DemoAdvanced.Demo
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Demo</title>
+</head>
+<body>
+<div>
+    <h1>Demo</h1>
+    <p><b>Níže jsou výsledky:</b></p>
+    <div id="app"></div>
+</div>
+
+
+<script type="text/javascript">
+    function renderData(item) {
+        const div = document.createElement('div');
+        div.classList.add('item');
+        div.innerHTML = "<h1>" + item.name + "</h1><p>" + item.title + "</p>";
+        document.getElementById('app').appendChild(div);
+    }
+
+    async function loadData() {
+        try {
+            const response = await fetch('api/fragments', { method: 'GET' });
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder('utf-8');
+            let partialData = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+
+                if (done) {
+                    break;
+                }
+
+                partialData += decoder.decode(value, { stream: true });
+
+                const openingBraceIndex = partialData.indexOf('{');
+                const closingBraceIndex = partialData.lastIndexOf('}');
+                const jsonData = partialData.substring(openingBraceIndex, closingBraceIndex + 1);
+                partialData = partialData.substring(closingBraceIndex + 1);
+
+                try {
+                    const item = JSON.parse(jsonData);
+                    renderData(item);
+                } catch (error) {
+                    console.error('Chyba při zpracování dat:', error);
+                }
+            }
+        } catch (error) {
+            console.error('Chyba při načítání dat:', error);
+            throw error;
+        }
+    }
+
+    loadData();
+</script>
+
+<style>
+    html {font-family: "Open Sans"}
+    div.item {display: inline-block; margin: 10px 10px 0 0; padding: 10px; border: #cccccc 1px solid; border-radius: 5px; background-color: #f9f9f9; box-shadow: 0 0 5px #cccccc;}
+    div.item h1 {font-size: 120%; margin: 0; padding: 0 0 0 0;}
+</style>
+</body>
+</html>
