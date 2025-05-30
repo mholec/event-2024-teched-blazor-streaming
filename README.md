@@ -1,5 +1,8 @@
 # TechEd 2024 - Streaming demo
 
+> [!NOTE]  
+> Níže uvedená dokumentace k projektu je automaticky generovaná službou GitHub Copilot.
+
 Ukázková aplikace pro konferenci TechEd 2024 demonstrující pokročilé možnosti HTTP streamingu v ASP.NET Core pomocí `IAsyncEnumerable`.
 
 ## Popis aplikace
